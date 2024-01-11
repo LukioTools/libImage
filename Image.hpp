@@ -30,11 +30,12 @@ namespace Image
         unsigned char b = 0;
         unsigned char a = 1;
     };
+    class Image;
     class Image
     {
     public:
         inline virtual std::size_t width(){
-            return 0;
+            return -1;
         };
         inline virtual std::size_t height(){
             return 0;
@@ -52,13 +53,13 @@ namespace Image
             return nullptr;
         };
         inline virtual bool write_file(const std::string& filename){
-            
             return false;
         }
+        inline virtual void clear(){}
 
         Image() {}
         Image(const Image& other) = delete;
-        ~Image() {}
+        virtual ~Image() {}
         struct ImageLoader
         {
             std::regex rgx;//matching_file_regex
@@ -80,6 +81,7 @@ namespace Image
             return std::move(i);
         }
     };
+
 
     inline std::vector<Image::ImageLoader> Image::image_loaders;
 

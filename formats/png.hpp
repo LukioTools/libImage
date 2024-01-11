@@ -1,5 +1,6 @@
 #pragma once
 #include "../Image.hpp"
+#include <iostream>
 #include <png.h>
 
 
@@ -8,7 +9,6 @@ namespace Image
 
     class Png : public Image
     {
-    private:
     public:
         png_structp png = nullptr;
         png_infop info = nullptr;
@@ -40,7 +40,7 @@ namespace Image
             return &data[y][x];
         }
 
-        void clear(){
+        void clear() override{ 
             auto w = png_get_image_width(png, info);
             auto h = png_get_image_height(png, info);
             png_destroy_read_struct(&png, &info, nullptr);
@@ -51,6 +51,7 @@ namespace Image
         }
 
         void load(const std::string& filename){
+            clear();
             FILE *fp = fopen(filename.c_str(), "rb");
             png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
             auto info = png_create_info_struct(png);  

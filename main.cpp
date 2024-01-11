@@ -1,4 +1,5 @@
 //#include "Image.hpp"
+#include "Image.hpp"
 #include "formats/png.hpp"
 #include <cstdlib>
 #include <iostream>
@@ -20,10 +21,12 @@ int main(int argc, char const *argv[])
 {
     //Image::Image::init();
     //auto i = Image::Image::load_file("img.png");
-    Image::Png img(filename);
+    Image::Png* img = new Image::Png(filename);
+    std::unique_ptr<Image::Image> i(img);
 
-    std::clog << "img.channels(): " << img.channels() << std::endl;
-    std::clog << "img.bitdepth(): " << img.bitdepth() << std::endl;
+
+
+    
 
 
     return 0;
