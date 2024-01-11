@@ -4,6 +4,8 @@
 #include <cstddef>
 #include <iostream>
 #include <png.h>
+#include <regex>
+#include <string>
 
 
 namespace Image
@@ -120,6 +122,15 @@ namespace Image
             png_read_png(png, info, PNG_TRANSFORM_IDENTITY, NULL);
             data = png_get_rows(png, info);
             fclose(fp);
+        }
+
+        static void init(){
+            Image::image_loaders.push_back({
+                std::regex("*."),
+                [](const std::string& fname)->Image*{
+                    return new Png(fname);
+                }
+            });
         }
 
         Png(){}

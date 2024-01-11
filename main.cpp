@@ -7,6 +7,7 @@
 #include <memory>
 #include <png.h>
 #include <pngconf.h>
+#include <regex>
 #include <string>
 #include <string_view>
 #include <sys/ioctl.h>
@@ -27,17 +28,11 @@ std::string filename = "img.png";
 
 int main(int argc, char const *argv[])
 {
-    //Image::Image::init();
-    //auto i = Image::Image::load_file("img.png");
-    Image::Png* img = new Image::Png(filename);
-    std::unique_ptr<Image::Image> i(img);
-    slog(img->data)
-    slog(img->info)
-    slog(img->png)
-
-    slog(img->bitdepth())
-    slog(img->channels())
+    std::cout << (std::regex_match(filename, std::regex("*.")) ? "true" : "false") << '\n';
+    /*
     
+    Image::Png::init();
+    auto i = Image::Image::load_file("img.png");
     auto r = i->get(0, 0);
 
     std::cout << r.r << " / " << r.g << " / " << r.b << std::endl;
@@ -47,8 +42,8 @@ int main(int argc, char const *argv[])
     auto width = win.ws_col;
     auto height = win.ws_row;
 
-    auto hr = static_cast<double>(img->height())/height;
-    auto wr = static_cast<double>(img->width())/width;
+    auto hr = static_cast<double>(i->height())/height;
+    auto wr = static_cast<double>(i->width())/width;
 
     slog(hr)
     slog(wr)
@@ -61,7 +56,7 @@ int main(int argc, char const *argv[])
         }
         std::cout << '\n' << '\r';
     }
-    
+    */
 
 
     return 0;
