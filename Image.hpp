@@ -6,6 +6,7 @@
 #include <iostream>
 #include <memory>
 #include <regex>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 #include "Callable.hpp"
@@ -23,12 +24,28 @@
 
 namespace Image
 {
-    struct RGBA
+    typedef unsigned int RGBA_val_t;
+    struct RGBA //supports only to 4bytes aka 16 bitdepth, if you want more use the get_ptr function 
     {
-        unsigned char r = 0;
-        unsigned char g = 0;
-        unsigned char b = 0;
-        unsigned char a = 1;
+        RGBA_val_t r = 0;
+        RGBA_val_t g = 0;
+        RGBA_val_t b = 0;
+        RGBA_val_t a = 255;
+
+        RGBA_val_t& operator[](unsigned char index){
+            switch (index)
+            {
+            case 0:
+                return r;
+            case 1:
+                return g;
+            case 2:
+                return b;
+            case 3:
+                return a;
+            }
+            throw std::out_of_range("RGBA::[]::out of range");
+        }
     };
     class Image;
     class Image
