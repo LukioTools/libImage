@@ -1,63 +1,69 @@
-//#include "Image.hpp"
-#include "Image.hpp"
-#include "formats/png.hpp"
-#include <asm-generic/ioctls.h>
-#include <cstdlib>
 #include <iostream>
-#include <memory>
-#include <png.h>
-#include <pngconf.h>
-#include <regex>
 #include <string>
-#include <string_view>
-#include <sys/ioctl.h>
-#include <stdio.h>
-#include <unistd.h>
-
-#include "def.hpp"
+#include <jpeglib.h>
 
 
-
-std::string filename = "img.png";
+std::string filename = "img.jpg";
 
 
 
 #define slog(var) std::clog << #var": " <<  var << std::endl;
 
-
+void error_exit(j_common_ptr cinfo) {
+    char buffer[JMSG_LENGTH_MAX];
+    (*cinfo->err->format_message)(cinfo, buffer);
+    fprintf(stderr, "JPEG Error: %s\n", buffer);
+    exit(EXIT_FAILURE);
+}
 
 int main(int argc, char const *argv[])
 {
-    std::cout << (std::regex_match(filename, std::regex("*.")) ? "true" : "false") << '\n';
-    /*
-    
-    Image::Png::init();
-    auto i = Image::Image::load_file("img.png");
-    auto r = i->get(0, 0);
+    jpeg_decompress_struct cinfo;
+    jpeg_error_mgr jerr;
 
-    std::cout << r.r << " / " << r.g << " / " << r.b << std::endl;
+    // Initialize the JPEG decompression object
+    cinfo.err = jpeg_std_error(&jerr);
+    jerr.error_exit = error_exit;
 
-    winsize win;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &win);
-    auto width = win.ws_col;
-    auto height = win.ws_row;
+    jpeg_create_decompress(&cinfo);
 
-    auto hr = static_cast<double>(i->height())/height;
-    auto wr = static_cast<double>(i->width())/width;
-
-    slog(hr)
-    slog(wr)
-    for (size_t h = 0; h < height; h++)
-    {
-        for (size_t w = 0; w < width; w++)
-        {
-            auto e = i->get(w*wr,h*hr);
-            std::cout << color_bg_rgb(e) << ' ' << attr_reset;
-        }
-        std::cout << '\n' << '\r';
+    // Specify the input file
+    FILE *infile = fopen(filename.c_str(), "rb");
+    if (!infile) {
+        fprintf(stderr, "Error opening JPEG file.\n");
+        exit(EXIT_FAILURE);
     }
-    */
 
+    // Specify the source of the compressed data
+    jpeg_stdio_src(&cinfo, infile);
+
+    // Read file parameters and start decompression
+    (void) jpeg_read_header(&cinfo, TRUE);
+    (void) jpeg_start_decompress(&cinfo);
+
+    // Allocate memory for the image data
+    JSAMPARRAY buffer;
+    int row_stride;
+    row_stride = cinfo.output_width * cinfo.output_components;
+    buffer = cinfo.mem->alloc_sarray((j_common_ptr)&cinfo, JPOOL_IMAGE, row_stride, 1);
+
+    // Loop through the image and read the data line by line
+    while (cinfo.output_scanline < cinfo.output_height) {
+        (void) jpeg_read_scanlines(&cinfo, buffer, 1);
+        // Process the image data as needed
+        // 'buffer' contains the pixel values of the current line
+    }
+
+    // Finish decompression
+    (void) jpeg_finish_decompress(&cinfo);
+    fclose(infile);
+
+    // Clean up and release resources
+    jpeg_destroy_decompress(&cinfo);
+        
+    std::cout << (int) buffer[0][0] << " / " << (int) buffer[0][1] << " / " << (int) buffer[0][2] << std::endl;
+
+    
 
     return 0;
 }
